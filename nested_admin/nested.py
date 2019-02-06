@@ -247,6 +247,7 @@ class NestedInlineModelAdminMixin(object):
         super(NestedInlineModelAdminMixin, self).__init__(*args, **kwargs)
 
     # Copy methods from ModelAdmin
+    get_inline_classes = get_method_function(ModelAdmin.get_inline_classes)
     get_inline_instances = get_method_function(ModelAdmin.get_inline_instances)
 
     get_formsets_with_inlines = get_method_function(ModelAdmin.get_formsets_with_inlines)
