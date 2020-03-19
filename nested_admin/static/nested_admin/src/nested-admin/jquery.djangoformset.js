@@ -335,7 +335,9 @@ class DjangoFormset {
         }
 
         if (grappelli) {
-            grappelli.reinitDateTimeFields($form);
+            // form.find(...).datepicker is not a function
+            //grappelli.reinitDateTimeFields($form);
+            grappelli.updateSelectFilter($form);
         }
         DJNesting.DjangoInlines.initPrepopulatedFields($form);
         DJNesting.DjangoInlines.reinitDateTimeShortCuts();

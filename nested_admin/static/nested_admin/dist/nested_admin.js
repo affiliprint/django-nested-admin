@@ -536,7 +536,9 @@ function () {
     }
 
     if (grappelli) {
-      grappelli.reinitDateTimeFields($form);
+      // form.find(...).datepicker is not a function
+      //grappelli.reinitDateTimeFields($form);
+      grappelli.updateSelectFilter($form);
     }
 
     DJNesting.DjangoInlines.initPrepopulatedFields($form);
@@ -5085,8 +5087,8 @@ __webpack_require__(/*! ./_fix-re-wks */ "./node_modules/core-js/modules/_fix-re
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! /private/tmp/django-nested-admin/nested_admin/static/nested_admin/src/nested_admin.scss */"./nested_admin/static/nested_admin/src/nested_admin.scss");
-module.exports = __webpack_require__(/*! /private/tmp/django-nested-admin/nested_admin/static/nested_admin/src/nested-admin/index.js */"./nested_admin/static/nested_admin/src/nested-admin/index.js");
+__webpack_require__(/*! /home/maldn/projects/django-nested-admin/nested_admin/static/nested_admin/src/nested_admin.scss */"./nested_admin/static/nested_admin/src/nested_admin.scss");
+module.exports = __webpack_require__(/*! /home/maldn/projects/django-nested-admin/nested_admin/static/nested_admin/src/nested-admin/index.js */"./nested_admin/static/nested_admin/src/nested-admin/index.js");
 
 
 /***/ }),
