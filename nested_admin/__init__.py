@@ -20,7 +20,7 @@ __version__ = '3.2.4'
 # import mapping to objects in other modules
 all_by_module = {
     'nested_admin.forms': (
-        'SortableHiddenMixin'),
+        'SortableHiddenMixin',),
     'nested_admin.formsets': (
         'NestedInlineFormSet', 'NestedBaseGenericInlineFormSet'),
     'nested_admin.nested': (
@@ -152,10 +152,7 @@ def all_valid(original_all_valid, formsets):
                         # Force Django to try to save the instance,
                         # since we need it for the fk to work
                         changed_data = parent_form.fields.keys()
-                        if django.VERSION > (1, 9):
-                            parent_form.__dict__['changed_data'] = changed_data
-                        else:
-                            parent_form._changed_data = changed_data
+                        parent_form.__dict__['changed_data'] = changed_data
                 if not hasattr(parent_form, 'parent_formset'):
                     break
                 parent_form.parent_formset._errors = None

@@ -30,13 +30,7 @@ if django.VERSION > (2, 0):
 try:
     import grappelli  # noqa
 except ImportError:
-    try:
-        import suit  # noqa
-    except ImportError:
-        INSTALLED_APPS = tuple([])
-    else:
-        INSTALLED_APPS = tuple(['suit'])
-        SUIT_CONFIG = {'CONFIRM_UNSAVED_CHANGES': False}
+    INSTALLED_APPS = tuple([])
 else:
     INSTALLED_APPS = tuple(['grappelli'])
 
@@ -70,12 +64,6 @@ TEMPLATES = [{
     },
 }]
 
-if 'suit' in INSTALLED_APPS:
-    # django-suit has issues with string_if_invalid,
-    # so don't use this setting if testing suit.
-    TEMPLATES[0]['OPTIONS'].pop('string_if_invalid')
-
-
 INSTALLED_APPS += (
     'selenosis',
     'nested_admin.tests',
@@ -101,23 +89,15 @@ if polymorphic is not None:
             os.path.basename(os.path.dirname(p))])
 
 
-if django.VERSION >= (1, 10):
-    MIDDLEWARE = [
-        'django.middleware.security.SecurityMiddleware',
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.middleware.common.CommonMiddleware',
-        'django.middleware.csrf.CsrfViewMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django.contrib.messages.middleware.MessageMiddleware',
-        'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    ]
-else:
-    MIDDLEWARE_CLASSES = (
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django.contrib.messages.middleware.MessageMiddleware',
-        'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-    )
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
 
 LOGGING = {
     'version': 1,
@@ -145,3 +125,4 @@ TEST_RUNNER = 'selenosis.DiscoverRunner'
 
 AWS_S3_REGION_NAME = "us-east-1"
 AWS_STORAGE_BUCKET_NAME = 'django-nested-admin-artifacts'
+AWS_DEFAULT_ACL = None

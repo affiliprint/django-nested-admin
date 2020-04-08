@@ -4,7 +4,6 @@ import json
 
 import django
 from django import template
-from django.apps import apps
 from django.conf import settings
 from django.contrib.admin.options import InlineModelAdmin
 from django.utils.safestring import mark_safe
@@ -13,26 +12,7 @@ from django.utils.html import escape
 register = template.Library()
 
 
-if django.VERSION >= (1, 10):
-    from django.templatetags.static import static as _static
-else:
-    _static = None
-
-
 django_version = django.VERSION[:2]
-
-
-@register.simple_tag
-def static(path):
-    global _static
-    if _static is None:
-        if apps.is_installed('django-contrib.staticfiles'):
-            from django.contrib.staticfiles.templatetags.staticfiles import static as _static
-        else:
-            from django.templatetags.static import static as _static
-    if django.VERSION >= (1, 9) and path == 'admin/img/icon-unknown.gif':
-        path = 'admin/img/icon-unknown.svg'
-    return _static(path)
 
 
 @register.filter
@@ -204,27 +184,3 @@ def ifinlineclasses(parser, token):
     else:
         nodelist_false = template.NodeList()
     return IfConditionNode(nodelist_true, nodelist_false, hasattr(InlineModelAdmin, 'classes'))
-
-
-@register.tag
-def ifsuit(parser, token):
-    nodelist_true = parser.parse(('else', 'endifsuit'))
-    token = parser.next_token()
-    if token.contents == 'else':
-        nodelist_false = parser.parse(('endifsuit',))
-        parser.delete_first_token()
-    else:
-        nodelist_false = template.NodeList()
-    return IfConditionNode(nodelist_true, nodelist_false, 'suit' in settings.INSTALLED_APPS)
-
-
-@register.tag
-def ifnotsuit(parser, token):
-    nodelist_true = parser.parse(('else', 'endifnotsuit'))
-    token = parser.next_token()
-    if token.contents == 'else':
-        nodelist_false = parser.parse(('endifnotsuit',))
-        parser.delete_first_token()
-    else:
-        nodelist_false = template.NodeList()
-    return IfConditionNode(nodelist_true, nodelist_false, 'suit' not in settings.INSTALLED_APPS)

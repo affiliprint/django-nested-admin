@@ -5,12 +5,7 @@ from django.conf import settings
 from django.contrib.admin import helpers
 from django.contrib.admin.utils import flatten_fieldsets
 from django.contrib.contenttypes.admin import GenericInlineModelAdmin
-try:
-    # Django 1.10
-    from django.urls import reverse
-except ImportError:
-    # Django <= 1.9
-    from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template.defaultfilters import capfirst
 import six
 from django.utils.functional import lazy
@@ -18,7 +13,7 @@ from six.moves import zip
 from django.utils.translation import gettext
 from django.contrib.admin.options import ModelAdmin, InlineModelAdmin
 
-from .compat import MergeSafeMedia, compat_rel_to
+from .compat import MergeSafeMedia
 from .formsets import NestedInlineFormSet, NestedBaseGenericInlineFormSet
 
 
@@ -111,8 +106,10 @@ class NestedInlineAdminFormsetMixin(object):
 
         js_file = 'nested_admin/dist/nested_admin%s.js' % min_ext
 
+        enable_server_data_js = 'grappelli' in settings.INSTALLED_APPS
+
         media += MergeSafeMedia(
-            js=(server_data_js_url,),
+            js=([server_data_js_url] if enable_server_data_js else []),
             css={'all': (
                 'nested_admin/dist/nested_admin%s.css' % min_ext,
             )})
@@ -147,7 +144,7 @@ class NestedInlineAdminFormsetMixin(object):
 
         formset_fk_model = ''
         if getattr(self.formset, 'fk', None):
-            formset_fk_opts = compat_rel_to(self.formset.fk)._meta
+            formset_fk_opts = self.formset.fk.remote_field.model._meta
             formset_fk_model = "%s-%s" % (
                 formset_fk_opts.app_label, formset_fk_opts.model_name)
 
@@ -291,17 +288,17 @@ class NestedModelAdminMixin(object):
             while i < len(nested_formsets_and_inline_instances):
                 formset, inline = nested_formsets_and_inline_instances[i]
                 i += 1
-                formset_forms = list(formset.forms)
-                if request.method == 'GET':
-                    formset_forms += [None]
+                formset_forms = list(formset.forms) + [None]
                 for form in formset_forms:
                     if form is not None:
                         form.parent_formset = formset
                         form_prefix = form.prefix
                         form_obj = form.instance
+                        is_empty_form = False
                     else:
                         form_prefix = formset.add_prefix('empty')
                         form_obj = None
+                        is_empty_form = True
                     InlineFormSet = inline.get_formset(request, form_obj)
 
                     prefix = '%s-%s' % (form_prefix, InlineFormSet.get_default_prefix())
@@ -311,7 +308,7 @@ class NestedModelAdminMixin(object):
 
                     if has_polymorphic and form_obj:
                         if hasattr(InlineFormSet, 'fk'):
-                            rel_model = compat_rel_to(InlineFormSet.fk)
+                            rel_model = InlineFormSet.fk.remote_field.model
                             if not isinstance(form_obj, rel_model):
                                 continue
                         if not isinstance(form_obj, inline.parent_model):
@@ -322,7 +319,7 @@ class NestedModelAdminMixin(object):
                         'prefix': prefix,
                         'queryset': inline.get_queryset(request),
                     }
-                    if request.method == 'POST':
+                    if request.method == 'POST' and not is_empty_form:
                         formset_params.update({
                             'data': request.POST.copy(),
                             'files': request.FILES,
@@ -429,9 +426,7 @@ class NestedInlineModelAdminMixin(object):
 
     inlines = []
 
-    if 'suit' in settings.INSTALLED_APPS:
-        fieldset_template = 'nesting/admin/includes/suit_inline.html'
-    elif 'grappelli' in settings.INSTALLED_APPS:
+    if 'grappelli' in settings.INSTALLED_APPS:
         fieldset_template = 'nesting/admin/includes/grappelli_inline.html'
     else:
         fieldset_template = 'nesting/admin/includes/inline.html'
